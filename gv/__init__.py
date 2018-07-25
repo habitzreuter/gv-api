@@ -7,6 +7,12 @@ from gv import tasks
 from gv.db.manager import DBManager
 
 
+class CORSMiddleware:
+    def process_request(self, req, resp):
+        resp.set_header('Access-Control-Allow-Origin', '*')
+        resp.set_header('Access-Control-Allow-Headers', 'content-type')
+        resp.set_header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+
 def create_app(db_manager):
     """
     Creates app instance
@@ -15,7 +21,7 @@ def create_app(db_manager):
     be configured. Only tests should call this function directly because
     they use mocks instead of get_app
     """
-    api = falcon.API()
+    api = falcon.API(middleware=[CORSMiddleware()])
 
     # Create Resources
     task_list = tasks.Collection(db_manager)
@@ -24,6 +30,7 @@ def create_app(db_manager):
     # Define routes
     api.add_route('/tasks', task_list)
     api.add_route('/tasks/{task_id:int}', task_item)
+    api.add_route('/task/{task_id:int}', task_item)
 
     return api
 
