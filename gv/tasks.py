@@ -94,3 +94,35 @@ class Item():
             return
 
         resp.status = falcon.HTTP_NOT_FOUND
+
+    @jsonschema.validate(task_schema)
+    def on_put(self, req, resp, task_id):
+        """
+        Update task with the given id
+        """
+        task = models.Task.get(self._db.session, task_id)
+        if task is None:
+            resp.status = falcon.HTTP_NOT_FOUND
+            return
+
+        new_task = models.Task(
+            number=req.media.get('number'),
+            title=req.media.get('title'),
+            due_date=req.media.get('due_date'),
+            location=req.media.get('location'),
+            assigned_to=req.media.get('assigned_to'),
+            status=req.media.get('status'),
+            group=req.media.get('group'),
+            score=req.media.get('score'),
+            max_score=req.media.get('max_score'),
+            extra_info=req.media.get('extra_info'),
+            url=req.media.get('url'),
+        )
+
+        new_task.id = task.id
+        new_task.created = task.created
+
+        now = datetime.datetime.now()
+        new_task.modified = now
+
+        new_task.update(self._db.session)

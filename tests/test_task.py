@@ -105,3 +105,54 @@ def test_create_task_server_error(client, mock_store):
 
     assert response.status == falcon.HTTP_INTERNAL_SERVER_ERROR
     assert b'Test Exception' in response.content
+
+
+def test_update_task(client, mock_store):
+
+    old_task_data = {
+        'id': 1,
+        'number': 11,
+    }
+
+    new_task_data = {
+        'number': 3,
+        'title': 'Hello',
+        'due_date': '2013-03-25T12:42:31+00:32',
+    }
+
+
+    old_task = Task(
+        id=old_task_data['id'],
+        number=old_task_data['number']
+    )
+
+    mock_store.session.query().get.return_value = old_task
+
+    def side_effect(self):
+        assert self.id == old_task_data['id']
+        assert self.number == new_task_data['number']
+        assert self.due_date == new_task_data['due_date']
+
+    mock_store.session.merge.side_effect = side_effect
+
+    response = client.simulate_put(
+        '/tasks/' + str(old_task_data['id']),
+        body=json.dumps(new_task_data)
+    )
+
+    assert response.status == falcon.HTTP_OK
+
+def test_update_task_not_found(client, mock_store):
+    new_task_data = {
+        'number': 3,
+        'title': 'Hello',
+        'due_date': '2013-03-25T12:42:31+00:32',
+    }
+
+    mock_store.session.query().get.return_value = None
+
+    response = client.simulate_put('/tasks/1', body=json.dumps(new_task_data))
+
+    mock_store.session.merge.assert_not_called()
+    mock_store.session.query().get.assert_called_once_with(1)
+    assert response.status == falcon.HTTP_NOT_FOUND

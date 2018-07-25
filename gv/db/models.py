@@ -103,3 +103,11 @@ class Task(SAModel):
         """
         with session.begin():
             session.add(self)
+
+    def update(self, session):
+        """
+        Update a task
+
+        """
+        with session.begin():
+            session.merge(self)
