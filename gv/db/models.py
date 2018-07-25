@@ -78,7 +78,7 @@ class Task(SAModel):
 
         with session.begin():
             query = session.query(cls)
-            tasks = query.all()
+            tasks = query.filter(cls.active)
 
         return tasks
 
@@ -91,7 +91,7 @@ class Task(SAModel):
 
         with session.begin():
             query = session.query(cls)
-            task = query.get(task_id)
+            task = query.filter(cls.active, cls.id == task_id).first()
 
         return task
 
@@ -111,3 +111,11 @@ class Task(SAModel):
         """
         with session.begin():
             session.merge(self)
+
+    def delete(self, session):
+        """
+        Delete a task
+
+        """
+        with session.begin():
+            self.active = False

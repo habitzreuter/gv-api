@@ -126,3 +126,18 @@ class Item():
         new_task.modified = now
 
         new_task.update(self._db.session)
+
+    def on_delete(self, req, resp, task_id):
+        """
+        Delete task with the given id
+        """
+        # pylint: disable=unused-argument
+        task = models.Task.get(self._db.session, task_id)
+        if task is None:
+            resp.status = falcon.HTTP_NOT_FOUND
+            return
+
+        now = datetime.datetime.now()
+        task.modified = now
+
+        task.delete(self._db.session)

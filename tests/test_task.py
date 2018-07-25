@@ -10,11 +10,11 @@ def test_get_task_list(client, mock_store):
 
     task1 = Task(id=1, number=3, title='Creative title')
     task2 = Task(id=0, number=4, title='Creative title 2')
-    mock_store.session.query().all.return_value = [task1, task2]
+    mock_store.session.query().filter.return_value = [task1, task2]
 
     res = client.simulate_get('/tasks/')
 
-    mock_store.session.query().all.assert_called_once()
+    mock_store.session.query().filter.assert_called_once()
     assert res.status == falcon.HTTP_OK
     assert b'{"id": 1, "number": 3, "title": "Creative title"' in res.content
     assert b'{"id": 0, "number": 4, "title": "Creative title 2"' in res.content
@@ -22,20 +22,20 @@ def test_get_task_list(client, mock_store):
 def test_get_single_task(client, mock_store):
     task_id = 2
     task = Task(id=task_id, number=3)
-    mock_store.session.query().get.return_value = task
+    mock_store.session.query().filter().first.return_value = task
 
     res = client.simulate_get('/tasks/{}'.format(task_id))
 
-    mock_store.session.query().get.assert_called_once_with(task_id)
+    mock_store.session.query().filter().first.assert_called_once()
     assert res.status == falcon.HTTP_OK
     assert '{{"id": {}, "number": 3'.format(task_id) in str(res.content)
 
 def test_get_single_task_not_found(client, mock_store):
     task_id = 2
-    mock_store.session.query().get.return_value = None
+    mock_store.session.query().filter().first.return_value = None
 
     res = client.simulate_get('/tasks/{}'.format(task_id))
-    mock_store.session.query().get.assert_called_once_with(task_id)
+    mock_store.session.query().first.assert_not_called()
     assert res.status == falcon.HTTP_NOT_FOUND
 
 def test_create_task(client, mock_store):
@@ -120,13 +120,12 @@ def test_update_task(client, mock_store):
         'due_date': '2013-03-25T12:42:31+00:32',
     }
 
-
     old_task = Task(
         id=old_task_data['id'],
         number=old_task_data['number']
     )
 
-    mock_store.session.query().get.return_value = old_task
+    mock_store.session.query().filter().first.return_value = old_task
 
     def side_effect(self):
         assert self.id == old_task_data['id']
@@ -149,10 +148,25 @@ def test_update_task_not_found(client, mock_store):
         'due_date': '2013-03-25T12:42:31+00:32',
     }
 
-    mock_store.session.query().get.return_value = None
+    mock_store.session.query().filter().first.return_value = None
 
     response = client.simulate_put('/tasks/1', body=json.dumps(new_task_data))
 
     mock_store.session.merge.assert_not_called()
-    mock_store.session.query().get.assert_called_once_with(1)
+    mock_store.session.query().filter().first.assert_called_once()
+    assert response.status == falcon.HTTP_NOT_FOUND
+
+def test_delete(client):
+
+    response = client.simulate_delete('/tasks/1')
+
+    assert response.status == falcon.HTTP_OK
+
+def test_delete_task_not_found(client, mock_store):
+
+    mock_store.session.query().filter().first.return_value = None
+
+    response = client.simulate_delete('/tasks/1')
+
+    mock_store.session.query().filter().first.assert_called_once()
     assert response.status == falcon.HTTP_NOT_FOUND
