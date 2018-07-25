@@ -94,3 +94,12 @@ class Task(SAModel):
             task = query.get(task_id)
 
         return task
+
+    def save(self, session):
+        """
+        Save a task to database.
+
+        Usage: instance.save(database_session).
+        """
+        with session.begin():
+            session.add(self)

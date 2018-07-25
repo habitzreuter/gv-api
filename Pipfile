@@ -7,6 +7,9 @@ name = "pypi"
 falcon = "*"
 gunicorn = "*"
 sqlalchemy = "*"
+jsonschema = "*"
+"strict-rfc3339" = "*"
+"rfc3987" = "*"
 
 [dev-packages]
 pytest = "*"

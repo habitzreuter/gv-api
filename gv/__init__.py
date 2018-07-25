@@ -3,6 +3,7 @@ GV API
 """
 import falcon
 
+from gv import tasks
 from gv.db.manager import DBManager
 
 
@@ -15,6 +16,14 @@ def create_app(db_manager):
     they use mocks instead of get_app
     """
     api = falcon.API()
+
+    # Create Resources
+    task_list = tasks.Collection(db_manager)
+    task_item = tasks.Item(db_manager)
+
+    # Define routes
+    api.add_route('/tasks', task_list)
+    api.add_route('/tasks/{task_id:int}', task_item)
 
     return api
 
