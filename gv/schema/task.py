@@ -43,5 +43,8 @@ SCHEMA = {
             "type": ["string", "null"],
             "format": "date-time",
         },
+        "location": {
+            "type": ["string", "null"]
+        },
     },
 }

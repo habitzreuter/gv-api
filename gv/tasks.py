@@ -42,17 +42,17 @@ class Collection():
         # Extract task fields from request
         # Only fields that can be changed by the user should be here
         model = models.Task(
-            number=req.media.get('number'),
             title=req.media.get('title'),
-            due_date=req.media.get('due_date'),
-            location=req.media.get('location'),
-            assigned_to=req.media.get('assigned_to'),
+            number=req.media.get('number'),
             status=req.media.get('status'),
             group=req.media.get('group'),
             score=req.media.get('score'),
             max_score=req.media.get('max_score'),
             extra_info=req.media.get('extra_info'),
+            assigned_to=req.media.get('assigned_to'),
             url=req.media.get('url'),
+            due_date=req.media.get('due_date'),
+            location=req.media.get('location'),
         )
 
         # Initialize fields with sane values
@@ -106,17 +106,17 @@ class Item():
             return
 
         new_task = models.Task(
-            number=req.media.get('number'),
             title=req.media.get('title'),
-            due_date=req.media.get('due_date'),
-            location=req.media.get('location'),
-            assigned_to=req.media.get('assigned_to'),
+            number=req.media.get('number'),
             status=req.media.get('status'),
             group=req.media.get('group'),
             score=req.media.get('score'),
             max_score=req.media.get('max_score'),
             extra_info=req.media.get('extra_info'),
+            assigned_to=req.media.get('assigned_to'),
             url=req.media.get('url'),
+            due_date=req.media.get('due_date'),
+            location=req.media.get('location'),
         )
 
         new_task.id = task.id
